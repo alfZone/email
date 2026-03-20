@@ -3,7 +3,7 @@
 /**
  * @autores alf
  * @copyright 2026
- * @ver 1.0
+ * @ver 1.1
  */
 
 
@@ -27,11 +27,20 @@ class ControllerMail {
     }
 
     //public function sendMail($to, $subject, $message) {
-    public function sendMail() {
+    public function getMail() {
         // Configurações do servidor SMTP
         $para= $_REQUEST['email'];
         $assunto= $_REQUEST['assunto'];
         $mensagem= $_REQUEST['mensagem'];
+        //$para = "alf@esmonserrate.org";
+        //$assunto = "Assunto do Email";
+        //$mensagem = "Olá! Este é um email de teste.";
+        $this->sendMail($para, $assunto, $mensagem);
+    }
+
+    //public function sendMail($to, $subject, $message) {
+    public function sendMail($para, $assunto, $mensagem ) {
+        // Configurações do servidor SMTP
         //$para = "alf@esmonserrate.org";
         //$assunto = "Assunto do Email";
         //$mensagem = "Olá! Este é um email de teste.";
@@ -84,4 +93,6 @@ class ControllerMail {
     }
 }
 ?>
+
+
 
