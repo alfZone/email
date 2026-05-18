@@ -19,8 +19,8 @@ use vendor\phpmailer\phpmailer\src\Exception;
 class ControllerMail {
     private $conn;
     private $database;
-    private $emissor = "alf246@gmail.com"; // Seu email Gmail
-    private $senha = "irex kuhz fypi mhsq"; // Senha de app do Gmail
+    private $emissor = "sender@gmail.com"; // Seu email Gmail
+    private $senha = "app password"; // Senha de app do Gmail
     private $noReplay = "nao-responder@gmail.com";
     private $sendOk = "Email enviado com sucesso!";
     private $sendFail = "Falha ao enviar email.";
