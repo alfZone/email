@@ -3,96 +3,78 @@
 /**
  * @autores alf
  * @copyright 2026
- * @ver 1.1
+ * @ver 2.0
  */
 
 
 namespace app;
-use src\Connection;
-use PDO;
 
+use src\Connection;
+use vendor\phpmailer\phpmailer\src\PHPMailer;
+use vendor\phpmailer\phpmailer\src\SMTP;
+use vendor\phpmailer\phpmailer\src\Exception;
+
+//require 'vendor/autoload.php'; // Ajuste o caminho conforme sua estrutura
 
 class ControllerMail {
-
     private $conn;
     private $database;
-    private $emissor = "remetente@exemplo.com";
-    private $noReplay = "nao-responder@exemplo.com";
-    private $sendOk="Email enviado com sucesso!";
-    private $sendFail="Falha ao enviar email.";
+    private $emissor = "alf246@gmail.com"; // Seu email Gmail
+    private $senha = "irex kuhz fypi mhsq"; // Senha de app do Gmail
+    private $noReplay = "nao-responder@gmail.com";
+    private $sendOk = "Email enviado com sucesso!";
+    private $sendFail = "Falha ao enviar email.";
 
     public function __construct() {
         $this->database = new Connection();
         $this->conn = $this->database->getConnection();
     }
 
-    //public function sendMail($to, $subject, $message) {
     public function getMail() {
-        // Configurações do servidor SMTP
-        $para= $_REQUEST['email'];
-        $assunto= $_REQUEST['assunto'];
-        $mensagem= $_REQUEST['mensagem'];
-        //$para = "alf@esmonserrate.org";
-        //$assunto = "Assunto do Email";
-        //$mensagem = "Olá! Este é um email de teste.";
+        $para = $_REQUEST['email'] ?? '';
+        $assunto = $_REQUEST['assunto'] ?? '';
+        $mensagem = $_REQUEST['mensagem'] ?? '';
+        
+        if(empty($para) || empty($assunto) || empty($mensagem)) {
+            echo "Todos os campos são obrigatórios!";
+            return;
+        }
+        
         $this->sendMail($para, $assunto, $mensagem);
     }
 
-    //public function sendMail($to, $subject, $message) {
-    public function sendMail($para, $assunto, $mensagem ) {
-        // Configurações do servidor SMTP
-        //$para = "alf@esmonserrate.org";
-        //$assunto = "Assunto do Email";
-        //$mensagem = "Olá! Este é um email de teste.";
-        $cabecalhos = "From: " . $this->emissor . "\r\n";
-        $cabecalhos .= "Reply-To: " . $this->noReplay . "\r\n";
-        $cabecalhos .= "X-Mailer: PHP/" . phpversion();
-
-        if(mail($para, $assunto, $mensagem, $cabecalhos)) {
+    public function sendMail($para, $assunto, $mensagem) {
+        $mail = new PHPMailer(true);
+        
+        try {
+            // Configurações do servidor SMTP do Gmail
+            $mail->isSMTP();
+            $mail->Host = 'smtp.gmail.com';
+            $mail->SMTPAuth = true;
+            $mail->Username = $this->emissor;
+            $mail->Password = $this->senha;
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS; // ou ENCRYPTION_SMTPS para SSL
+            $mail->Port = 587; // TLS: 587, SSL: 465
+            
+            // Remetente e destinatário
+            $mail->setFrom($this->emissor, 'Seu Nome');
+            $mail->addAddress($para);
+            $mail->addReplyTo($this->noReplay, 'Não Responder');
+            
+            // Conteúdo
+            $mail->isHTML(true);
+            $mail->Subject = $assunto;
+            $mail->Body = nl2br($mensagem);
+            $mail->AltBody = strip_tags($mensagem); // Versão texto puro
+            
+            $mail->send();
             echo $this->sendOk;
-        } else {
-            echo $this->sendFail;
+            
+        } catch (Exception $e) {
+            echo "{$this->sendFail} Erro: {$mail->ErrorInfo}";
         }
     }
-
-    public function setSender($email) {
-        $this->emissor = $email;
-    }   
-
-    public function setNoReply($email) {
-        $this->noReplay = $email;
-    }
     
-    public function getMensageSendOK() {
-        return $this->sendOk;
-    }
-    
-    public function getMensageSendFail() {
-        return $this->sendFail;
-    }
-
-    public function __destruct() {
-        $this->conn = null;
-    }
-
-    public function __toString() {
-        return "ControllerMail: Emissor={$this->emissor}, NoReply={$this->noReplay}";
-    }   
-
-    public function formHTML(){
-        return '
-        <form method="post" action="' . route("email.simple") . '">
-            <label for="email">Email do destinatário:</label><br>
-            <input type="email" id="email" name="email" required><br>
-            <label for="assunto">Assunto:</label><br>
-            <input type="text" id="assunto" name="assunto" required><br>
-            <label for="mensagem">Mensagem:</label><br>
-            <textarea id="mensagem" name="mensagem" required></textarea><br>
-            <input type="submit" value="Enviar Email">
-        </form>';   
-    }
+    // Restante dos métodos...
 }
 ?>
-
-
-
